@@ -35,6 +35,25 @@ function createEnv(name) {
   return new Env(name);
 }
 
+// 确保全局环境中可以使用这些函数
+if (typeof $environment !== 'undefined' || typeof $task !== 'undefined' || typeof $httpClient !== 'undefined') {
+  // 在 Surge/Stash/QuanX/Loon 等环境中运行时，将函数添加到全局命名空间
+  if (typeof global !== 'undefined') {
+    global.Env = Env;
+    global.createEnv = createEnv;
+    global.parseQueryString = parseQuery;
+  } else if (typeof window !== 'undefined') {
+    window.Env = Env;
+    window.createEnv = createEnv;
+    window.parseQueryString = parseQuery;
+  } else {
+    // 直接在当前作用域添加
+    this.Env = Env;
+    this.createEnv = createEnv;
+    this.parseQueryString = parseQuery;
+  }
+}
+
 // 兼容 CommonJS 模块导出
 try {
   if (typeof $environment !== 'undefined' || typeof $task !== 'undefined') {
